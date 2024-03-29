@@ -12,15 +12,15 @@ task = handle_ambiguity(user_provided_task)
 print(f"Final task: {task}\n")
 
 # Call the Planning Agent to create a plan for the task
-plan_steps = create_plan(task)
+# plan_steps = create_plan(task)
 
-print(f"Plan for the task: {plan_steps}\n")
+# print(f"Plan for the task: {plan_steps}\n")
 
-status = execute_plan(plan_steps, "Delete all temporary files .tmp in the /var/tmp directory.")
+# status = execute_plan(plan_steps, "Delete all temporary files .tmp in the /var/tmp directory.")
 
-print(f"\n---\nExecution status: {status}\n---\n")
-print("Execution completed.")
-if(status['success']):
-    print("Task executed successfully.")
-else:
-    print("Task execution failed.")
+# print(f"\n---\nExecution status: {status}\n---\n")
+# print("Execution completed.")
+# if(status['success']):
+#     print("Task executed successfully.")
+# else:
+#     print("Task execution failed.")
