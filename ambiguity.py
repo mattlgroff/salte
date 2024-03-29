@@ -1,4 +1,5 @@
 import json
+import time
 from openai import OpenAI
 from system_context import get_operating_system_environment_context
 
@@ -62,6 +63,8 @@ def check_for_ambiguity(user_provided_task):
 
     operating_system_environment_context = get_operating_system_environment_context()
 
+    start_time = time.time()
+
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
@@ -91,6 +94,8 @@ def check_for_ambiguity(user_provided_task):
         }}],
         stream=False,
     )
+
+    print(f"Response time from gpt-4 for 'check_for_ambiguity': {time.time() - start_time}\n")
 
     # If there is no tool_calls, return None (assuming we should proceed with the task)
     if not response.choices[0].message.tool_calls:
@@ -126,6 +131,8 @@ def rewrite_user_provided_task(user_provided_task, clarifying_question, clarifyi
       Your primary function is to rewrite the user-provided task based on the clarifying question and answer.
     """
 
+    start_time = time.time()
+
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
@@ -136,5 +143,8 @@ def rewrite_user_provided_task(user_provided_task, clarifying_question, clarifyi
         ],
         stream=False,
     )
+
+    print(f"Response time from gpt-4 for 'rewrite_user_provided_task': {time.time() - start_time}\n")
+
 
     return response.choices[0].message.content
