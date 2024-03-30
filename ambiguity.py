@@ -1,12 +1,9 @@
 import time
 import json
-from openai import OpenAI
+import anthropic
 from system_context import get_operating_system_environment_context
 
-client = OpenAI(
-    base_url = 'http://localhost:11434/v1',
-    api_key='ollama',
-)
+client = anthropic.Client(api_key="your-anthropic-api-key-here")
 
 # Recursive function to handle ambiguity in user-provided tasks
 def handle_ambiguity(user_provided_task):
@@ -98,21 +95,19 @@ def check_for_ambiguity(user_provided_task):
 
     start_time = time.time()
 
-    response = client.chat.completions.create(
-        model="mixtral",
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": f"# For context, this is the Operating System Environment you are working with: \n{operating_system_environment_context}"},
-            {"role": "user", "content": user_provided_task}
-        ],
-        stream=False,
+    response = client.messages.create(
+      model="claude-3-opus-20240229",
+      system=system_message,
+      messages=[
+          {"role": "user", "content": f"# For context, this is the Operating System Environment you are working with: \n{operating_system_environment_context}\n # User Provided Task: \n{user_provided_task}"},
+      ],
+      max_tokens=4096
     )
 
     print(f"Response time from mixtral for 'check_for_ambiguity': {time.time() - start_time}\n")
 
     # Need to check if this is valid json
-    contentToParse = response.choices[0].message.content
+    contentToParse = response.content[0].text
 
     try:
         function = json.loads(contentToParse)
@@ -151,17 +146,15 @@ def rewrite_user_provided_task(user_provided_task, clarifying_question, clarifyi
 
     start_time = time.time()
 
-    response = client.chat.completions.create(
-        model="mixtral",
-        messages=[
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": user_provided_task},
-            {"role": "user","content": f"# Clarifying Question: \n{clarifying_question}"},
-            {"role": "user","content": f"# Clarifying Answer: \n{clarifying_answer}"}
-        ],
-        stream=False,
+    response = client.messages.create(
+      model="claude-3-opus-20240229",
+      system=system_message,
+      messages=[
+          {"role": "user","content": f"# User Provided Task: {user_provided_task}\n # Clarifying Question: \n{clarifying_question}\n# Clarifying Answer: \n{clarifying_answer}"},
+      ],
+      max_tokens=4096
     )
 
-    print(f"Response time from mixtral for 'rewrite_user_provided_task': {time.time() - start_time}\n")
+    print(f"Response time from Claude 3 Opus for 'rewrite_user_provided_task': {time.time() - start_time}\n")
 
-    return response.choices[0].message.content
+    return response.content[0].text
